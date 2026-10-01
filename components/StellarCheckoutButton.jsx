@@ -3,10 +3,7 @@ import { SiStellar } from "react-icons/si";
 
 import { payWithStellar } from "../lib/stellar/checkout";
 import { defaultToken } from "../lib/stellar/config";
-import {
-  resolveXlmUsdRate,
-  XlmRateUnavailableError,
-} from "../lib/stellar/price";
+import { resolveXlmUsdRate, XlmRateUnavailableError } from "../lib/stellar/price";
 import {
   connectWallet,
   currentAddress,
@@ -96,9 +93,7 @@ const StellarCheckoutButton = ({
 
     if (token?.isNative && !xlmRate && tokenAmount == null) {
       setBusy(false);
-      setError(
-        new XlmRateUnavailableError().message
-      );
+      setError(new XlmRateUnavailableError().message);
       return;
     }
 

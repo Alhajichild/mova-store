@@ -7,7 +7,9 @@ const OTHER_ID = "CBAU4T2UJBCVEX2DKVJVIT2NL5EUIX2YLBMFQAAAAAAAAAAAAAAAAAT5";
 
 type ConfigModule = typeof import("../../../lib/stellar/config");
 
-async function loadConfig(overrides: Record<string, string | undefined> = {}): Promise<ConfigModule> {
+async function loadConfig(
+  overrides: Record<string, string | undefined> = {}
+): Promise<ConfigModule> {
   vi.resetModules();
   process.env = { ...process.env };
   if (overrides.NEXT_PUBLIC_STELLAR_NETWORK !== undefined) {
@@ -21,7 +23,8 @@ async function loadConfig(overrides: Record<string, string | undefined> = {}): P
     delete process.env.NEXT_PUBLIC_USDC_CONTRACT_ID;
   }
   if (overrides.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID !== undefined) {
-    process.env.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID = overrides.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID;
+    process.env.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID =
+      overrides.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID;
   } else {
     delete process.env.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID;
   }
@@ -53,13 +56,13 @@ describe("stellar config network validation", () => {
 
   it("rejects unrecognised network values with a clear error", { timeout: 20000 }, async () => {
     await expect(loadConfig({ NEXT_PUBLIC_STELLAR_NETWORK: "foo" })).rejects.toThrow(
-      /Invalid NEXT_PUBLIC_STELLAR_NETWORK "foo"/,
+      /Invalid NEXT_PUBLIC_STELLAR_NETWORK "foo"/
     );
     await expect(loadConfig({ NEXT_PUBLIC_STELLAR_NETWORK: "TESTNET" })).rejects.toThrow(
-      /Invalid NEXT_PUBLIC_STELLAR_NETWORK/,
+      /Invalid NEXT_PUBLIC_STELLAR_NETWORK/
     );
     await expect(loadConfig({ NEXT_PUBLIC_STELLAR_NETWORK: "pubnet" })).rejects.toThrow(
-      /Invalid NEXT_PUBLIC_STELLAR_NETWORK/,
+      /Invalid NEXT_PUBLIC_STELLAR_NETWORK/
     );
   });
 });
@@ -85,7 +88,7 @@ describe("stellar config SUPPORTED_TOKENS validation", () => {
       loadConfig({
         NEXT_PUBLIC_USDC_CONTRACT_ID: OTHER_ID,
         NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID: OTHER_ID,
-      }),
+      })
     ).rejects.toThrow(/must be unique/);
   });
 
@@ -94,7 +97,7 @@ describe("stellar config SUPPORTED_TOKENS validation", () => {
       loadConfig({
         NEXT_PUBLIC_USDC_CONTRACT_ID: "not-a-contract",
         NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID: XLM_ID,
-      }),
+      })
     ).rejects.toThrow(/invalid contract id/);
   });
 
@@ -103,7 +106,7 @@ describe("stellar config SUPPORTED_TOKENS validation", () => {
       loadConfig({
         NEXT_PUBLIC_USDC_CONTRACT_ID: USDC_ID,
         NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID: "not-a-contract",
-      }),
+      })
     ).rejects.toThrow(/invalid contract id/);
   });
 

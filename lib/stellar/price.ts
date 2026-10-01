@@ -29,9 +29,7 @@ export interface XlmUsdRate {
  * Returns null when no valid rate is available — callers must refuse to
  * quote rather than invent a number.
  */
-export function resolveXlmUsdRate(
-  raw?: string | number | null
-): XlmUsdRate | null {
+export function resolveXlmUsdRate(raw?: string | number | null): XlmUsdRate | null {
   const candidate =
     raw !== undefined && raw !== null && String(raw).trim() !== ""
       ? raw

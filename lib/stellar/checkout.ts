@@ -111,7 +111,7 @@ export async function payWithStellar(options: PayOptions): Promise<PayResult> {
   if (token.isNative) {
     const rate = resolveXlmUsdRate(options.xlmUsdPrice);
     if (!rate) throw new XlmRateUnavailableError();
-    effectiveTokenAmount = options.tokenAmount ?? (amountUsd / rate.usdPerXlm);
+    effectiveTokenAmount = options.tokenAmount ?? amountUsd / rate.usdPerXlm;
   } else {
     effectiveTokenAmount = options.tokenAmount ?? amountUsd;
   }

@@ -32,9 +32,7 @@ function resolveNetwork(raw: string | undefined): StellarNetwork {
   );
 }
 
-export const NETWORK: StellarNetwork = resolveNetwork(
-  process.env.NEXT_PUBLIC_STELLAR_NETWORK
-);
+export const NETWORK: StellarNetwork = resolveNetwork(process.env.NEXT_PUBLIC_STELLAR_NETWORK);
 export const IS_MAINNET = NETWORK === "mainnet";
 
 // Mainnet default matches lib/env.ts STELLAR_DEFAULTS.mainnet and the endpoint
@@ -47,29 +45,24 @@ export const IS_MAINNET = NETWORK === "mainnet";
 // different RPCs depending on which module resolved it. Aligned to match.
 export const RPC_URL =
   process.env.NEXT_PUBLIC_STELLAR_RPC_URL ??
-  (IS_MAINNET
-    ? "https://soroban-rpc.stellar.org"
-    : "https://soroban-testnet.stellar.org");
+  (IS_MAINNET ? "https://soroban-rpc.stellar.org" : "https://soroban-testnet.stellar.org");
 
 export const NETWORK_PASSPHRASE =
   process.env.NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE ??
   (IS_MAINNET ? Networks.PUBLIC : Networks.TESTNET);
 
 // Deployed checkout contract (see contracts/checkout + README).
-export const CHECKOUT_CONTRACT_ID =
-  process.env.NEXT_PUBLIC_CHECKOUT_CONTRACT_ID ?? "";
+export const CHECKOUT_CONTRACT_ID = process.env.NEXT_PUBLIC_CHECKOUT_CONTRACT_ID ?? "";
 
 // USDC via the Stellar Asset Contract.
-export const TESTNET_USDC_CONTRACT_ID =
-  "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA";
+export const TESTNET_USDC_CONTRACT_ID = "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA";
 // Set NEXT_PUBLIC_USDC_CONTRACT_ID to the mainnet USDC SAC contract id.
 export const USDC_CONTRACT_ID =
   process.env.NEXT_PUBLIC_USDC_CONTRACT_ID ?? TESTNET_USDC_CONTRACT_ID;
 
 // Testnet USDC is issued by Circle's classic testnet issuer (trustline only
 // needed for non-native assets; native XLM needs no trustline).
-export const TESTNET_USDC_ISSUER =
-  "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
+export const TESTNET_USDC_ISSUER = "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
 
 // Native XLM Stellar Asset Contract ids.
 //
@@ -83,9 +76,7 @@ export const MAINNET_NATIVE_ASSET_CONTRACT_ID =
   "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA";
 export const NATIVE_ASSET_CONTRACT_ID =
   process.env.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID ??
-  (IS_MAINNET
-    ? MAINNET_NATIVE_ASSET_CONTRACT_ID
-    : TESTNET_NATIVE_ASSET_CONTRACT_ID);
+  (IS_MAINNET ? MAINNET_NATIVE_ASSET_CONTRACT_ID : TESTNET_NATIVE_ASSET_CONTRACT_ID);
 
 // All tokens accepted by the checkout contract's whitelist. The merchant adds
 // each token on-chain via `add_token`; the frontend uses this registry for
@@ -202,4 +193,3 @@ export const ADMIN_ORDERS_CURSOR_STORAGE_KEY = "mova:admin-orders:cursor:v1";
 // Safety buffer added on top of the simulated resource fee so the tx has
 // headroom to cover fees that drift between simulation and inclusion.
 export const FEE_BUFFER_STROOPS = BigInt(500000);
-
