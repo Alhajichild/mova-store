@@ -1,4 +1,4 @@
-import { Networks } from "@stellar/stellar-sdk";
+import { Networks, StrKey } from "@stellar/stellar-sdk";
 
 // ---------------------------------------------------------------------------
 // Network + contract configuration.
@@ -12,7 +12,29 @@ import { Networks } from "@stellar/stellar-sdk";
 //   NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID = native XLM SAC contract id (C...)
 // ---------------------------------------------------------------------------
 
-export const NETWORK = process.env.NEXT_PUBLIC_STELLAR_NETWORK ?? "testnet";
+/**
+ * Configuration enums fail closed (#706): only the documented network values
+ * are accepted. Unset (or empty) still defaults to testnet for local dev.
+ */
+export const ALLOWED_NETWORKS = ["testnet", "mainnet"] as const;
+export type StellarNetwork = (typeof ALLOWED_NETWORKS)[number];
+
+function resolveNetwork(raw: string | undefined): StellarNetwork {
+  if (raw === undefined || raw.trim() === "") return "testnet";
+  const trimmed = raw.trim();
+  if ((ALLOWED_NETWORKS as readonly string[]).includes(trimmed)) {
+    return trimmed as StellarNetwork;
+  }
+  throw new Error(
+    `Invalid NEXT_PUBLIC_STELLAR_NETWORK "${raw}". ` +
+      `Accepted values: ${ALLOWED_NETWORKS.join(", ")}. ` +
+      `Unset (or empty) falls back to "testnet".`
+  );
+}
+
+export const NETWORK: StellarNetwork = resolveNetwork(
+  process.env.NEXT_PUBLIC_STELLAR_NETWORK
+);
 export const IS_MAINNET = NETWORK === "mainnet";
 
 // Mainnet default matches lib/env.ts STELLAR_DEFAULTS.mainnet and the endpoint
@@ -80,7 +102,41 @@ export interface TokenConfig {
   assetIssuer?: string;
 }
 
-export const SUPPORTED_TOKENS: TokenConfig[] = [
+/**
+ * A lookup table keyed by identifier must be unique by construction (#705).
+ * Validates SUPPORTED_TOKENS at module load so a duplicate or empty contract
+ * id fails immediately instead of silently resolving payments to the wrong
+ * token.
+ */
+function validateSupportedTokens(tokens: TokenConfig[]): TokenConfig[] {
+  const seen = new Map<string, string>();
+  for (const token of tokens) {
+    const label = token.symbol || token.contractId || "<unnamed>";
+    if (!token.contractId || token.contractId.trim() === "") {
+      throw new Error(
+        `SUPPORTED_TOKENS entry "${label}" has an empty contractId. ` +
+          `Every token must declare a non-empty contract id.`
+      );
+    }
+    if (!StrKey.isValidContract(token.contractId)) {
+      throw new Error(
+        `SUPPORTED_TOKENS entry "${label}" has an invalid contract id: ${token.contractId}. ` +
+          `Contract ids must be valid C... StrKeys.`
+      );
+    }
+    const previous = seen.get(token.contractId);
+    if (previous !== undefined) {
+      throw new Error(
+        `SUPPORTED_TOKENS entries "${previous}" and "${label}" share contract id ` +
+          `${token.contractId}. Token registry contractIds must be unique.`
+      );
+    }
+    seen.set(token.contractId, label);
+  }
+  return tokens;
+}
+
+export const SUPPORTED_TOKENS: TokenConfig[] = validateSupportedTokens([
   {
     contractId: USDC_CONTRACT_ID,
     symbol: "USDC",
@@ -96,7 +152,7 @@ export const SUPPORTED_TOKENS: TokenConfig[] = [
     decimals: 7,
     isNative: true,
   },
-];
+]);
 
 /** Default payment token (used by the checkout flow unless overridden). */
 export function defaultToken(): TokenConfig {

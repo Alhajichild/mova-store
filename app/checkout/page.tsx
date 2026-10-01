@@ -30,7 +30,7 @@ import {
   TokenConfig,
   NETWORK,
 } from "../../lib/stellar/config";
-import { convertUsdToXlm, DEFAULT_XLM_USD_PRICE } from "../../lib/stellar/price";
+import { resolveXlmUsdRate, TESTNET_REFERENCE_XLM_USD_PRICE } from "../../lib/stellar/price";
 import {
   validateOTP,
   validateEmail,
@@ -654,12 +654,25 @@ const Checkout = () => {
                       );
                     })}
                   </div>
-                  {selectedToken.isNative && totalPrice > 0 && (
-                    <div className="mt-1 flex items-center justify-between text-xs bg-purple-50 border border-purple-100 rounded px-2.5 py-1.5 text-purple-800">
-                      <span>Rate: 1 XLM ≈ ${DEFAULT_XLM_USD_PRICE} USD</span>
-                      <span className="font-semibold">≈ {convertUsdToXlm(totalPrice)} XLM</span>
-                    </div>
-                  )}
+                  {selectedToken.isNative && totalPrice > 0 && (() => {
+                    const rate = resolveXlmUsdRate();
+                    if (!rate) {
+                      return (
+                        <div className="mt-1 flex items-center justify-between text-xs bg-amber-50 border border-amber-200 rounded px-2.5 py-1.5 text-amber-800">
+                          <span>XLM rate not configured</span>
+                          <span className="font-semibold">Set NEXT_PUBLIC_XLM_USD_PRICE</span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="mt-1 flex items-center justify-between text-xs bg-purple-50 border border-purple-100 rounded px-2.5 py-1.5 text-purple-800">
+                        <span>Rate: 1 XLM ≈ ${rate.usdPerXlm.toFixed(4)} USD</span>
+                        <span className="font-semibold">
+                          ≈ {(totalPrice / rate.usdPerXlm).toFixed(4)} XLM
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <StellarWalletButton />
